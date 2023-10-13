@@ -15,12 +15,14 @@
 ###-----------------------------------------------------------------------------
 ### Worked Example 1: model development - binary outcome
 ###-----------------------------------------------------------------------------
-Y_prev <- 3/100 #set the anticipated binary outcome prevalence (here, 3%)
-P <- 25 #set the number of predictor parameters that will be considered in the model
-SF <- 0.9 #set the level of overfitting that is targeted (targeted shrinkage factor)
-anticipated_R2 <- 0.023 #set the anticipated level of performance
 
-#Now run the sample size calculation
+## Pre-specify the required information for the sample size calculations:
+Y_prev <- 3/100 #the anticipated binary outcome prevalence
+P <- 25 #the number of predictor parameters
+anticipated_R2 <- 0.023 #the anticipated level of performance
+SF <- 0.9 #the level of overfitting that is targeted 
+
+## Now run the sample size calculation:
 # install.packages("pmsampsize")
 library(pmsampsize)
 pmsampsize(type = "b",
@@ -29,14 +31,8 @@ pmsampsize(type = "b",
            shrinkage = SF,
            prevalence = Y_prev)
 
-#can alternatively use c-stat in place of R-squared for binary models
-pmsampsize(type = "b",
-           cstatistic = 0.74,
-           parameters = P,
-           shrinkage = SF,
-           prevalence = Y_prev)
-
-#alternative approach to pre-specifying performance based on an anticipated c-statistic:
+## An alternative approach is to pre-specifying performance based on an
+## anticipated c-statistic:
 anticipated_c_stat <- 0.74
 pmsampsize(type = "b",
            cstatistic = anticipated_c_stat,
@@ -44,7 +40,16 @@ pmsampsize(type = "b",
            shrinkage = 0.9,
            prevalence = Y_prev)
 
-#consider reducing the number of predictor parameters
+## In the above, the required sample size is too big. Option (i) is to accept a
+## higher level of overfitting. For example, dropping the shrinkage from 0.9 to
+## 0.8 gives the following required sample size:
+pmsampsize(type = "b",
+           rsquared = anticipated_R2,
+           parameters = P,
+           shrinkage = 0.8,
+           prevalence = Y_prev)
+
+## Option (ii) is to consider reducing the number of predictor parameters:
 P <- 20
 pmsampsize(type = "b",
            rsquared = anticipated_R2,
@@ -65,17 +70,11 @@ pmsampsize(type = "b",
              prevalence = Y_prev)
 
 
-###-----------------------------------------------------------------------------
-### Worked Example 2: model development - time-to-event outcome
-###-----------------------------------------------------------------------------
-
-
 
 ###-----------------------------------------------------------------------------
-### Worked Example 3: model validation - simulation-based approach
+### Worked Example 2: model validation - simulation-based approach
 # See Box 2 of Snell et al. doi: 10.1016/j.jclinepi.2021.02.011
 ###-----------------------------------------------------------------------------
-
 set.seed(1234)
 
 y_prev <- 0.031 #set the outcome proportion
@@ -126,9 +125,30 @@ simulation_sample_size_results <- data.frame("Sample Size" = N,
                                              "Width of Calibration Slope 95% CI" = colMeans(cal_slope_width),
                                              "Width of C-Stat 95% CI" = colMeans(c_stat_width))
 
+#step i
+min(simulation_sample_size_results$Sample.Size[which(
+  simulation_sample_size_results$Width.of.O.E.Ratio.95..CI < 0.2
+)])
+
+#step ii
+min(simulation_sample_size_results$Sample.Size[which(
+  simulation_sample_size_results$Width.of.Calibration.Slope.95..CI < 0.2
+)])
+
+#step iii
+min(simulation_sample_size_results$Sample.Size[which(
+  simulation_sample_size_results$Width.of.C.Stat.95..CI < 0.1
+)])
+
+### final sample size
+min(simulation_sample_size_results$Sample.Size[which(
+  simulation_sample_size_results$Width.of.O.E.Ratio.95..CI < 0.2 &
+    simulation_sample_size_results$Width.of.Calibration.Slope.95..CI < 0.2 &
+    simulation_sample_size_results$Width.of.C.Stat.95..CI < 0.1
+)])
 
 ###-----------------------------------------------------------------------------
-### Worked Example 3: model validation - closed-form solution
+### Worked Example 2: model validation - closed-form solution
 # Adapted from Stata code provided in Riley et al. DOI: 10.1002/sim.9025
 ###-----------------------------------------------------------------------------
 
@@ -181,15 +201,6 @@ ceiling(c(sampsize_OE,
           sampsize_slope,
           sampsize_cstat))
 
-closed_form_sample_size <- ceiling(max(c(sampsize_OE,
-                                         sampsize_slope,
-                                         sampsize_cstat)))
-
-### final sample size across both methods:
-min(simulation_sample_size_results$Sample.Size[which(
-  simulation_sample_size_results$Width.of.O.E.Ratio.95..CI < 0.2 &
-  simulation_sample_size_results$Width.of.Calibration.Slope.95..CI < 0.2 &
-    simulation_sample_size_results$Width.of.C.Stat.95..CI < 0.1
-)])
-
-closed_form_sample_size
+ceiling(max(c(sampsize_OE,
+              sampsize_slope,
+              sampsize_cstat)))
