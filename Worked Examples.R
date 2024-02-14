@@ -8,6 +8,7 @@
 # Authors:
 #   Glen P. Martin
 #   Richard D. Riley
+#   Joie Ensor
 #   Stuart W. Grant
 
 # #######################################################################################################################
@@ -26,7 +27,7 @@ SF <- 0.9 #the level of overfitting that is targeted
 # install.packages("pmsampsize")
 library(pmsampsize)
 pmsampsize(type = "b",
-           rsquared = anticipated_R2,
+           csrsquared = anticipated_R2,
            parameters = P,
            shrinkage = SF,
            prevalence = Y_prev)
@@ -44,7 +45,7 @@ pmsampsize(type = "b",
 ## higher level of overfitting. For example, dropping the shrinkage from 0.9 to
 ## 0.8 gives the following required sample size:
 pmsampsize(type = "b",
-           rsquared = anticipated_R2,
+           csrsquared = anticipated_R2,
            parameters = P,
            shrinkage = 0.8,
            prevalence = Y_prev)
@@ -52,19 +53,19 @@ pmsampsize(type = "b",
 ## Option (ii) is to consider reducing the number of predictor parameters:
 P <- 20
 pmsampsize(type = "b",
-           rsquared = anticipated_R2,
+           csrsquared = anticipated_R2,
            parameters = P,
            shrinkage = SF,
            prevalence = Y_prev)
 P <- 18
 pmsampsize(type = "b",
-           rsquared = anticipated_R2,
+           csrsquared = anticipated_R2,
            parameters = P,
            shrinkage = SF,
            prevalence = Y_prev)
 P <- 15
 pmsampsize(type = "b",
-             rsquared = anticipated_R2,
+           csrsquared = anticipated_R2,
              parameters = P,
              shrinkage = SF,
              prevalence = Y_prev)
