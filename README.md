@@ -2,7 +2,7 @@
 
 This repo gives the code required to run the worked examples within the paper entitled "Statistical Primer: sample size considerations for developing and validating clinical prediction models", within the European Journal of Cardio-Thoracic Surgery. 
 
-The code is based on the original publications for sample size requirements for developing and validating clinical prediction models (listed below). See the "pmsampsize" R/Stata package for full implementation of the sample size formula.
+The code is based on the original publications for sample size requirements for developing and validating clinical prediction models (listed below). See the "pmsampsize" R/Stata package for full implementation of the sample size formula for model development, and the "pmvalsampsize" R/Stata package for full implementation of the sample size formula for model validation.
 
 - Riley RD, Snell KIE, Ensor J, et al. Minimum sample size for developing a multivariable prediction model: Part I - Continuous outcomes. Stat Med 2019;38(7):1262-75. doi: 10.1002/sim.7993
 - Riley RD, Snell KI, Ensor J, et al. Minimum sample size for developing a multivariable prediction model: PART II - binary and time-to-event outcomes. Stat Med 2019;38(7):1276-96. doi: 10.1002/sim.7992
