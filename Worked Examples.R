@@ -85,7 +85,7 @@ mu_LP <- -4.02 #mean
 sd_LP <- 1.17 #standard deviation
 
 #Specify a sequence of sample sizes to try for the size of the validation study:
-N <- seq(from = 9000, to = 13000, by = 100) 
+N <- seq(from = 2500, to = 13000, by = 100) 
 
 n_iter <- 500 #number of simulation repeats per sample size, N
 
@@ -150,58 +150,14 @@ min(simulation_sample_size_results$Sample.Size[which(
 
 ###-----------------------------------------------------------------------------
 ### Worked Example 2: model validation - closed-form solution
-# Adapted from Stata code provided in Riley et al. DOI: 10.1002/sim.9025
 ###-----------------------------------------------------------------------------
 
-y_prev <- 0.031 #set the outcome proportion
-
-### step (i)
-OE_precision <- 0.051 #set desired precision of OE ratio (target width of 0.2)
-sampsize_OE <- (1- y_prev) / (y_prev*(OE_precision^2)) #sample size needed to target that precision
-
-### step (ii) - assuming model is weakly calibrated
-#specify distribution of LP:
-mu_LP <- -4.02 #mean
-sd_LP <- 1.17 #standard deviation
-LP <- rnorm(1000000, mu_LP, sd_LP)
-alpha_val <- 0
-beta_val <- 1 #specify values for alpha and beta (see Riley et al.)
-a_i <- (exp(alpha_val + (beta_val*LP))) / ((1 + exp(alpha_val + (beta_val*LP)))^2)
-b_i <- (LP*(exp(alpha_val + (beta_val*LP)))) / ((1 + exp(alpha_val + (beta_val*LP)))^2)
-c_i <- ((LP^2)*(exp(alpha_val + (beta_val*LP)))) / ((1 + exp(alpha_val + (beta_val*LP)))^2)
-I_a <- mean(a_i)
-I_ab <- mean(b_i)
-I_b <- mean(c_i)
-
-calslope_precision <- 0.051 #set desired precision of calibration slope (target width of 0.2)
-sampsize_slope <- I_a / ((calslope_precision^2)*((I_a*I_b)-(I_ab^2))) #sample size needed to target precision of cal slope
-
-### step (iii)
-c_stat <- 0.73 #set anticipated level of c-statistic 
-N_seq <- c(7000, 8000, 9000, 10000) #Specify a sequence of sample sizes to try for the iterative process
-SE_c <- sqrt(
-  (
-  (c_stat*(1-c_stat)) * (1 + 
-      (((N_seq/2)-1)*((1-c_stat)/(2-c_stat))) +
-      ((((N_seq/2)-1)*c_stat)/(1+c_stat)) )
-  )
-  /
-    (
-      (N_seq^2)*y_prev*(1 - y_prev)
-      )
-  )
-
-CIwidth <- 2*qnorm(0.025, lower = F)*SE_c 
-sampsize_cstat <- min(N_seq[which(CIwidth<0.1)]) #sample size needed to target width of C-stat at 0.1
-
-### step (iv) - not considered for this illustrative example in the paper
-
-### final sample size
-
-ceiling(c(sampsize_OE,
-          sampsize_slope,
-          sampsize_cstat))
-
-ceiling(max(c(sampsize_OE,
-              sampsize_slope,
-              sampsize_cstat)))
+# install.packages("pmvalsampsize")
+library(pmvalsampsize)
+pmvalsampsize(type = "b", 
+              prevalence = 0.031, 
+              cstatistic = 0.74, 
+              lpnormal = c(-4.02,1.17), 
+              oeciwidth = 0.2, 
+              csciwidth = 0.2, 
+              cstatciwidth = 0.1)
